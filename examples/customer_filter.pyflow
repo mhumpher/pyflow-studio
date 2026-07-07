@@ -1,0 +1,35 @@
+{
+  "pyflow_version": "1.0",
+  "id": "example",
+  "name": "Customer filter",
+  "meta": { "description": "Read customers, keep active ones, browse the result." },
+  "nodes": [
+    {
+      "id": "n1",
+      "type": "input.file",
+      "position": { "x": 80, "y": 140 },
+      "config": {
+        "path": "examples/data/customers.csv",
+        "format": "csv",
+        "has_header": true,
+        "delimiter": ","
+      }
+    },
+    {
+      "id": "n2",
+      "type": "prep.filter",
+      "position": { "x": 380, "y": 140 },
+      "config": { "expression": "[status] == \"active\"" }
+    },
+    {
+      "id": "n3",
+      "type": "output.browse",
+      "position": { "x": 680, "y": 100 },
+      "config": {}
+    }
+  ],
+  "edges": [
+    { "id": "e1", "source": { "node": "n1", "anchor": "out" }, "target": { "node": "n2", "anchor": "in" } },
+    { "id": "e2", "source": { "node": "n2", "anchor": "true" }, "target": { "node": "n3", "anchor": "in" } }
+  ]
+}

@@ -1,0 +1,24 @@
+# Normalize line endings: store as LF in the repo, check out native on each OS.
+* text=auto
+
+*.py    text
+*.pyi   text
+*.ts    text
+*.tsx   text
+*.js    text
+*.json  text
+*.md    text
+*.css   text
+*.html  text
+*.toml  text
+*.csv   text
+*.pyflow text
+
+# Binary artifacts (never diff/normalize)
+*.arrow    binary
+*.parquet  binary
+*.db        binary
+*.sqlite   binary
+*.png      binary
+*.jpg      binary
+*.ico      binary

@@ -1,0 +1,45 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pyflow-studio"
+version = "0.0.1"
+description = "A free, Python-native visual analytics platform (Alteryx-style canvas on Polars/DuckDB)."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "Apache-2.0" }
+authors = [{ name = "Pyflow contributors" }]
+dependencies = [
+    "polars>=1.0",
+    "pyarrow>=15",
+    "pydantic>=2.6",
+    "fastapi>=0.110",
+    "uvicorn[standard]>=0.27",
+    "python-multipart>=0.0.9",
+    "xlsxwriter>=3.1",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "ruff>=0.4", "mypy>=1.8"]
+duckdb = ["duckdb>=0.10"]
+# Database connectivity. ConnectorX covers reads for SQL Server / Redshift / Oracle /
+# Postgres / MySQL; SQLAlchemy + pandas power writes (pandas.to_sql handles cross-dialect
+# table creation). Per-driver extras for the SQLAlchemy path are installed as needed (see docs).
+db = ["connectorx>=0.3.3", "sqlalchemy>=2.0", "pandas>=2.0"]
+mssql = ["pymssql>=2.2"]
+redshift = ["psycopg[binary]>=3.1"]
+oracle = ["oracledb>=2.0"]
+
+[project.scripts]
+pyflow = "pyflow_server.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["packages/engine", "packages/sdk", "packages/server"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

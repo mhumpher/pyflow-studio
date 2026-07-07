@@ -1,0 +1,4 @@
+id,payload
+1,"{""user"":""alice"",""score"":10,""active"":true}"
+2,"{""user"":""bob"",""score"":20,""active"":false}"
+3,"{""user"":""carol"",""score"":15,""active"":true}"

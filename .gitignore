@@ -1,0 +1,35 @@
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+build/
+dist_py/
+
+# Node / frontend
+node_modules/
+apps/studio/dist/
+
+# Editors / OS / local tooling
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+# Local Claude Code tooling (contains machine-specific paths)
+.claude/
+
+# Secrets / environment
+.env
+.env.*
+*.pem
+*.key
+
+# Pyflow runtime
+.pyflow_cache/
+*.log
+examples/output/
+*.db
+*.sqlite

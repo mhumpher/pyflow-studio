@@ -1,0 +1,9 @@
+id,name,status,region,spend
+1,Acme,active,West,1200.50
+2,Globex,inactive,East,300.00
+3,Initech,active,East,875.25
+4,Umbrella,active,West,5400.00
+5,Hooli,inactive,West,50.00
+6,Stark,active,East,9800.75
+7,Wayne,active,West,4200.00
+8,Wonka,inactive,East,150.25
