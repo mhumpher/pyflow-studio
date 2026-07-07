@@ -1,5 +1,10 @@
 # 08 — Roadmap & MVP
 
+> **Note:** this is the *original* phased vision, written before implementation. Phase 0 and most of
+> Phase 1 have since shipped. For the current, honest status and the prioritized plan for what's next,
+> see the living **[ROADMAP.md](../ROADMAP.md)** at the repo root. This document is retained as the
+> initial concept and for its acceptance-criteria detail.
+
 A phased plan from empty repo to a fully featured platform. Each phase has a **theme**, a **deliverable**,
 and **acceptance criteria**. Phases are sequential but tools within a phase can be parallelized.
 

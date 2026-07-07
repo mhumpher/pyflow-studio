@@ -4,8 +4,8 @@
 
 Pyflow lets analysts build data pipelines by dragging **tools** onto a canvas and wiring them
 together — no code required — while data engineers can extend it with custom tools in plain
-Python. Under the hood it runs on **Polars** and **DuckDB** for larger-than-memory speed, with an
-optional **Dask/Ray** backend for cluster-scale jobs.
+Python. Under the hood it runs on **Polars**. Out-of-core **DuckDB** and distributed **Dask/Ray**
+backends are planned but not yet implemented — see the [roadmap](ROADMAP.md).
 
 ```
 ┌─ Browser (localhost) ───────────────────┐
@@ -15,7 +15,7 @@ optional **Dask/Ray** backend for cluster-scale jobs.
             WebSocket / REST
 ┌─────────────────────▼────────────────────┐
 │  FastAPI  ·  DAG execution engine         │
-│  Polars (streaming) · DuckDB · Dask/Ray   │
+│  Polars   (DuckDB / Dask·Ray planned)     │
 └───────────────────────────────────────────┘
 ```
 
@@ -31,7 +31,7 @@ code-first with no visual canvas (Prefect, Dagster). Pyflow aims to be:
 | --- | --- |
 | **Free & open** | Apache-2.0 licensed, no seat fees, self-hostable |
 | **Python-native** | The engine, the tools, and every extension are plain Python |
-| **Fast & scalable** | Polars + DuckDB out-of-core by default; Dask/Ray for clusters |
+| **Fast & scalable** | Runs on Polars today; out-of-core DuckDB and Dask/Ray clusters are on the [roadmap](ROADMAP.md) |
 | **Familiar UX** | Alteryx-style canvas, tool palette, config panel, and results grid |
 | **Extensible** | Author a custom tool in ~40 lines; ship it as a pip package |
 
@@ -133,11 +133,12 @@ CI) with no browser or server involved.
 
 ## Status
 
-**Phase 0 complete; Phase 1 in progress — the schema-aware config foundation and the formula language
-are built and working.** The monorepo, pure-Python engine, FastAPI server, and React Flow Studio are in
-place, and you can build multi-step workflows on the canvas, run them, and preview each node's output —
-or run the same `.pyflow` headless via the CLI. See [DEVELOPMENT.md](DEVELOPMENT.md) to set it up and
-[docs/08-roadmap.md](docs/08-roadmap.md) for the plan.
+**Working today: a visual Studio backed by a 22-tool engine.** The monorepo, pure-Python engine, FastAPI
+server, and React Flow Studio are in place — build multi-step workflows on the canvas, run them with
+incremental caching, and preview each node's output, or run the same `.pyflow` headless via the CLI. The
+engine is **Polars-only today** (DuckDB/Dask backends and automated tests/CI are still to come). See
+[DEVELOPMENT.md](DEVELOPMENT.md) to set it up and the **[ROADMAP](ROADMAP.md)** for what's next and the
+known gaps.
 
 Built so far:
 - `packages/engine` — DAG model, topological scheduler, Polars-backed `Frame`, type system, tool
