@@ -103,7 +103,8 @@ flowchart TB
 | Testing | pytest, hypothesis, Playwright (e2e) | Unit → golden-workflow → e2e |
 
 ### Distribution
-- `pip install pyflow-studio` → `pyflow studio` boots the server and opens the browser.
+- `pip install pyflow-studio` → `pyflow studio` boots the server and opens the browser. *(Planned — not
+  yet on PyPI; install from source today, see the [README](../README.md#installation).)*
 - `pyflow run workflow.pyflow` → headless execution.
 - Later: a **pywebview** desktop shell bundling Python + the built frontend into a single app.
 

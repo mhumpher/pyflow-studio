@@ -76,7 +76,8 @@ CI runs unit + engine + golden + contract on every PR; E2E + perf on a schedule/
 
 ## 6. Packaging & distribution
 
-- **Install:** `pip install pyflow-studio` (or the final name) ships engine + server + built frontend;
+- **Install (planned, not yet on PyPI):** `pip install pyflow-studio` (or the final name) ships engine +
+  server + built frontend;
   `pyflow studio` launches locally. `pyflow-sdk` is a separate lightweight dependency for tool authors.
 - **Optional extras:** heavy stacks are extras/plugins (`pip install pyflow-studio[ml,spatial,dask]`) so
   the core stays lean.

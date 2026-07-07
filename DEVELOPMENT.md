@@ -1,7 +1,7 @@
 # Development guide
 
-How to set up, build, and run Pyflow locally. This covers the **Phase 0 walking skeleton**
-(canvas + Input Data / Filter / Browse tools + run engine), which is implemented and working.
+How to set up, build, and run Pyflow locally from source. Pyflow is **not yet published to PyPI**, and
+the compiled web UI isn't checked in, so setup builds both the Python packages and the frontend.
 
 ## Prerequisites
 
@@ -101,7 +101,7 @@ docs/                           # full specification (start with docs/00 and doc
   Text to Columns · RegEx (parse/match/replace/tokenize) · DateTime (parse/format) · JSON Parse ·
   Join (Left-only / Join / Right-only) · Union (fan-in, by name or position) · Browse ·
   Output Data (CSV/Parquet/Arrow/JSON/Excel) · Database Output (append / overwrite / create)
-- **Database Input/Output:** `pip install "pyflow-studio[db]"`; connect via the UI's *Test connection &
+- **Database Input/Output:** `pip install -e ".[db]"`; connect via the UI's *Test connection &
   fetch schema* button (input). See [docs/database-connections.md](docs/database-connections.md).
 - **Formula language** — `[Field]` references, `IF…ELSEIF…ELSE…ENDIF`, ~30 functions, compiled to Polars
 - **Design-time schema pass** — output/field schemas computed without running, powering:

@@ -29,7 +29,7 @@ code-first with no visual canvas (Prefect, Dagster). Pyflow aims to be:
 
 | Goal | How |
 | --- | --- |
-| **Free & open** | Apache-2.0 / MIT licensed, no seat fees, self-hostable |
+| **Free & open** | Apache-2.0 licensed, no seat fees, self-hostable |
 | **Python-native** | The engine, the tools, and every extension are plain Python |
 | **Fast & scalable** | Polars + DuckDB out-of-core by default; Dask/Ray for clusters |
 | **Familiar UX** | Alteryx-style canvas, tool palette, config panel, and results grid |
@@ -44,6 +44,40 @@ code-first with no visual canvas (Prefect, Dagster). Pyflow aims to be:
 - **Reproducible workflows** saved as human-readable JSON (`.pyflow`)
 - **CLI + headless runner** for scheduling and CI
 - **Tool SDK** for building custom tools and shipping them as plugins
+
+---
+
+## Installation
+
+> **Not yet published to PyPI** — install **from source**. The compiled web UI isn't checked in
+> (it's generated), so building the frontend is part of setup.
+
+**Prerequisites:** Python 3.11+ and Node.js 18+.
+
+```bash
+git clone https://github.com/mhumpher/pyflow-studio.git
+cd pyflow-studio
+
+# 1. Engine + server + the `pyflow` CLI
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1          # Windows  ·  macOS/Linux: source .venv/bin/activate
+pip install -e .                       # add ".[db]" for the database tools
+
+# 2. Build the web UI (the Python server serves it)
+cd apps/studio && npm install && npm run build && cd ../..
+
+# 3. Launch the Studio
+pyflow studio                          # → http://127.0.0.1:8710
+```
+
+Prefer no browser? Run a workflow headless (no Node build needed):
+
+```bash
+pyflow run examples/customer_filter.pyflow
+```
+
+For dev mode (frontend hot-reload), the database extras, and troubleshooting, see
+[DEVELOPMENT.md](DEVELOPMENT.md).
 
 ---
 

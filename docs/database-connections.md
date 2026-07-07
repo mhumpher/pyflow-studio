@@ -17,13 +17,16 @@ handles cross-dialect table creation); ConnectorX is read-only.
 
 ## Install
 
+Pyflow isn't on PyPI yet, so install the database extras **from source** (from a clone of the repo —
+see the [README](../README.md#installation)):
+
 ```bash
-pip install "pyflow-studio[db]"        # ConnectorX + SQLAlchemy + pandas
+pip install -e ".[db]"        # ConnectorX + SQLAlchemy + pandas
 ```
 
 ConnectorX bundles native clients for SQL Server (TDS) and the Postgres protocol (Redshift), so those
 need **no ODBC/driver install** for reads. Per-database SQLAlchemy drivers (needed for writes, and for
-the SQLAlchemy read path) are separate (see each section).
+the SQLAlchemy read path) are separate extras (see each section).
 
 ## How you connect (in the UI)
 
@@ -63,11 +66,11 @@ preview exactly what was written.
 | Port | `1433` (default) |
 | Database | your database name |
 
-- **ConnectorX (recommended):** works out of the box (`pip install "pyflow-studio[db]"`), no ODBC.
+- **ConnectorX (recommended):** works out of the box (`pip install -e ".[db]"`), no ODBC.
   URI form: `mssql://user:pass@host:1433/mydb`.
   If the server enforces encryption, use the **Custom connection URI** with parameters, e.g.
   `mssql://user:pass@host:1433/mydb?encrypt=true&trust_server_certificate=true`.
-- **SQLAlchemy alternative:** `pip install "pyflow-studio[mssql]"` (pymssql), set Driver = `sqlalchemy`
+- **SQLAlchemy alternative:** `pip install -e ".[mssql]"` (pymssql), set Driver = `sqlalchemy`
   → `mssql+pymssql://user:pass@host:1433/mydb`. (Or pyodbc if you already have the MS ODBC driver.)
 
 ## Redshift
@@ -80,7 +83,7 @@ preview exactly what was written.
 
 - **ConnectorX (recommended):** built in — Redshift speaks the Postgres wire protocol.
   URI form: `redshift://user:pass@cluster.xxxx.region.redshift.amazonaws.com:5439/dev`.
-- **SQLAlchemy alternative:** `pip install "pyflow-studio[redshift]"` (psycopg), Driver = `sqlalchemy`
+- **SQLAlchemy alternative:** `pip install -e ".[redshift]"` (psycopg), Driver = `sqlalchemy`
   → `postgresql+psycopg://user:pass@host:5439/dev`.
 
 ## Oracle
@@ -91,7 +94,7 @@ preview exactly what was written.
 | Port | `1521` (default) |
 | Database / service | your **service name** (or SID) |
 
-- **SQLAlchemy + python-oracledb (recommended):** `pip install "pyflow-studio[oracle]"`, Driver =
+- **SQLAlchemy + python-oracledb (recommended):** `pip install -e ".[oracle]"`, Driver =
   `sqlalchemy`. Thin mode needs **no Oracle client install**.
   For a **service name**, use the **Custom connection URI** field:
   `oracle+oracledb://user:pass@host:1521/?service_name=ORCLPDB1`
