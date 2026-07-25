@@ -1,5 +1,11 @@
 # 07 — Backend API
 
+> **📋 Design specification.** This is the *target* API contract. The implemented server today exposes a
+> subset — `/tools`, `/workflows/schema`, `/formula/*`, `/connections/inspect`, node previews, and the
+> run WebSocket. Endpoints described here that don't exist yet (notably **workflow CRUD / save**) are
+> planned; see the [roadmap](../ROADMAP.md). The live surface is
+> [`packages/server/pyflow_server/app.py`](../packages/server/pyflow_server/app.py).
+
 The server exposes a **REST API** for documents, catalog, schemas, and previews, and a **WebSocket
 channel** for run control and live events. All heavy work is delegated to the engine. This is a contract
 sketch, not final OpenAPI — payloads are illustrative.

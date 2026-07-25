@@ -1,5 +1,11 @@
 # 03 — Execution Engine
 
+> **📋 Design specification.** This describes Pyflow's *target* design — some is built, some is planned.
+> **Built today:** lazy Polars execution, the DAG scheduler, per-node sampling/previews, events, and
+> content-addressed caching. **Not yet built:** the multi-backend abstraction, **DuckDB** and
+> **Dask/Ray** backends, and true streaming / out-of-core execution — these are on the
+> [roadmap](../ROADMAP.md). See the [README](../README.md) for current status.
+
 The engine turns a `.pyflow` DAG into results. It is the core of the product and is independent of the
 GUI (see [Architecture §7](01-architecture.md)). This document specifies how it schedules, executes,
 scales, and caches.

@@ -1,5 +1,10 @@
 # 05 — Tool SDK
 
+> **📋 Design specification.** The core SDK is real — `Tool`, anchors, Pydantic config, entry-point
+> plugins, and `pyflow_sdk.testing.run_tool` all work today. But the `Frame` API is **Polars-only** for
+> now; the "backend-neutral / compiles to DuckDB or Dask" behavior described below is the target, not yet
+> implemented. See the [roadmap](../ROADMAP.md) and [README](../README.md).
+
 Extensibility is a first-class feature. A developer should be able to write a useful custom tool in an
 afternoon and ship it as a pip package. This document specifies the tool-authoring contract.
 

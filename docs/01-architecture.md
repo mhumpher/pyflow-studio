@@ -1,5 +1,9 @@
 # 01 — Architecture
 
+> **📋 Design specification.** This describes Pyflow's *target* design — some is built, some is planned.
+> The engine is **Polars-only today**; DuckDB, Dask/Ray, and streaming / out-of-core execution are on
+> the [roadmap](../ROADMAP.md), not yet implemented. See the [README](../README.md) for current status.
+
 ## 1. Overview
 
 Pyflow is a **local-first client/server application** plus a **standalone execution engine**.

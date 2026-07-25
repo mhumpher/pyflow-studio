@@ -1,5 +1,10 @@
 # 04 — Tool Catalog
 
+> **📋 Design specification.** This is the *planned* catalog. Many "roadmap" items here have since
+> shipped — the [README](../README.md) lists the ~22 tools actually implemented today. Predictive,
+> spatial, time-series, text-mining, reporting, and in-database tool packs remain planned (see the
+> [roadmap](../ROADMAP.md)).
+
 Tools are the nodes on the canvas. This document defines the **MVP tool set** (what ships first) and the
 **full roadmap catalog**, organized by category the way analysts expect (mirroring, but not copying,
 Alteryx's tool groups).

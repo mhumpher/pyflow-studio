@@ -1,5 +1,10 @@
 # 06 — Frontend / GUI
 
+> **📋 Design specification.** This describes the *target* Studio UX. Much is built (canvas, palette,
+> schema-aware config panels, results grid, live run status), but some described here is **not yet
+> implemented** — notably workflow **save/open**, **undo/redo**, and a Monaco-based editor. See the
+> [roadmap](../ROADMAP.md) and [README](../README.md) for current status.
+
 The Studio frontend is a React + TypeScript app built on **React Flow** for the canvas. It is a pure
 view/controller over the server and engine — it renders state and issues commands, but performs no data
 logic. This document specifies layout, interactions, and component structure.

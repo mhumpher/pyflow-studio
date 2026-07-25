@@ -1,5 +1,10 @@
 # 09 — Non-Functional Requirements
 
+> **📋 Design specification.** These are *target* requirements, not a description of current behavior.
+> Several — the DuckDB/streaming performance targets, user-code sandboxing, auth/RBAC, and PyPI
+> packaging — are **not yet implemented**. Automated tests and CI *are* in place. See the
+> [roadmap](../ROADMAP.md) and [README](../README.md) for current status.
+
 Cross-cutting requirements that apply to all phases: performance, scalability, security, reliability,
 testing, packaging, observability, and licensing.
 

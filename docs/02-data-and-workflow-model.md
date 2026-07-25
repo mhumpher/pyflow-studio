@@ -1,5 +1,9 @@
 # 02 — Data & Workflow Model
 
+> **📋 Design specification.** This describes Pyflow's *target* design — some is built, some is planned.
+> The engine is **Polars-only today**; DuckDB, Dask/Ray, and streaming / out-of-core execution are on
+> the [roadmap](../ROADMAP.md), not yet implemented. See the [README](../README.md) for current status.
+
 This document defines the two data models at the heart of Pyflow:
 
 1. **The workflow model** — how a saved `.pyflow` file describes a pipeline (the DAG).
