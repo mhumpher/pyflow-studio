@@ -41,8 +41,9 @@ and priorities may shift. Legend: ✅ done · 🚧 in progress · 📋 planned.
 **Goal: the repo tells the truth and is verifiably correct.** This is the top priority now that the code
 is public.
 
-- 🚧 **Docs-accuracy pass** — the README now matches the Polars-only reality; a sweep of the remaining
-  spec docs (marking DuckDB / Dask / Ray as roadmap, not current behavior) is in progress.
+- ✅ **Docs-accuracy pass** — the README, DEVELOPMENT guide, database guide, and every spec doc now carry
+  honest status: a design-spec banner flags the Polars-only reality and links to current status, and the
+  from-source install commands are correct.
 - ✅ **Test suite** — 52 `pytest` tests cover the engine, every tool (round-trips), the formula language,
   the cache, and the schema pass, plus a `pyflow_sdk.testing.run_tool` harness. *(Playwright e2e still to come.)*
 - ✅ **Continuous integration** — GitHub Actions runs `ruff` + `pytest` on Linux/Windows × Python
