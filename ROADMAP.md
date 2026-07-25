@@ -30,8 +30,9 @@ and priorities may shift. Legend: ✅ done · 🚧 in progress · 📋 planned.
   streaming are described in the specs but **not yet implemented** — several tools materialize fully in
   memory. Pyflow handles small-to-medium data well today; the "larger-than-memory" story is a goal, not
   a current fact.
-- ⚠️ **No automated tests or CI**, no PyPI package, no workflow save/open in the UI, and the developer
-  tools (Python/SQL) run **unsandboxed**. These are the focus of the milestones below.
+- ⚠️ No PyPI package, no workflow save/open in the UI, and the developer tools (Python/SQL) run
+  **unsandboxed**. (A `pytest` suite and CI just landed — see Milestone 1.) These are the focus of the
+  milestones below.
 
 ---
 
@@ -40,12 +41,12 @@ and priorities may shift. Legend: ✅ done · 🚧 in progress · 📋 planned.
 **Goal: the repo tells the truth and is verifiably correct.** This is the top priority now that the code
 is public.
 
-- 📋 **Docs-accuracy pass** — align all docs with the Polars-only reality; mark DuckDB / Dask / Ray and
-  "larger-than-memory" clearly as roadmap, not current behavior.
-- 📋 **Test suite** — `pytest` for the engine, every tool (round-trips), the formula language, the cache,
-  and the schema pass; **Playwright** end-to-end for the Studio; golden-file tests for example workflows.
-- 📋 **Continuous integration** — GitHub Actions running ruff + mypy + `pytest` + `npm run build`, on a
-  Linux/macOS/Windows matrix.
+- 🚧 **Docs-accuracy pass** — the README now matches the Polars-only reality; a sweep of the remaining
+  spec docs (marking DuckDB / Dask / Ray as roadmap, not current behavior) is in progress.
+- ✅ **Test suite** — 52 `pytest` tests cover the engine, every tool (round-trips), the formula language,
+  the cache, and the schema pass, plus a `pyflow_sdk.testing.run_tool` harness. *(Playwright e2e still to come.)*
+- ✅ **Continuous integration** — GitHub Actions runs `ruff` + `pytest` on Linux/Windows × Python
+  3.11/3.13, plus a frontend build. *(mypy still to add.)*
 
 **Done when:** CI is green on every PR, coverage covers each tool, and no doc claims an unimplemented feature.
 

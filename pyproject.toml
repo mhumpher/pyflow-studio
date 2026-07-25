@@ -43,3 +43,7 @@ target-version = "py311"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+filterwarnings = [
+    # Polars 2.0 forward-compat notice; current behavior is intended.
+    "ignore:.*empty_as_null.*:DeprecationWarning",
+]

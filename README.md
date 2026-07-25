@@ -2,6 +2,10 @@
 
 **A free, open-source, Python-native visual analytics platform — an Alteryx-style drag-and-drop workflow designer powered by a modern big-data engine.**
 
+[![CI](https://github.com/mhumpher/pyflow-studio/actions/workflows/ci.yml/badge.svg)](https://github.com/mhumpher/pyflow-studio/actions/workflows/ci.yml)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](pyproject.toml)
+
 Pyflow lets analysts build data pipelines by dragging **tools** onto a canvas and wiring them
 together — no code required — while data engineers can extend it with custom tools in plain
 Python. Under the hood it runs on **Polars**. Out-of-core **DuckDB** and distributed **Dask/Ray**
