@@ -1,5 +1,4 @@
 import pytest
-
 from pyflow_engine import Runner, WorkflowDoc
 from pyflow_engine.cache import RunCache
 from pyflow_engine.schema_pass import infer_schemas

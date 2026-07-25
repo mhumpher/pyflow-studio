@@ -1,7 +1,8 @@
 """Join — combine two inputs on key fields, Alteryx-style (Left-only / Join / Right-only)."""
 from __future__ import annotations
 
-from pydantic import BaseModel, Field as PField
+from pydantic import BaseModel
+from pydantic import Field as PField
 
 from ..frame import Frame
 from ..tool import InputAnchor, OutputAnchor, Tool

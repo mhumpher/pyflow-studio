@@ -4,7 +4,8 @@ Fully lazy: the output schema (kept fields + name + value) is known at design ti
 """
 from __future__ import annotations
 
-from pydantic import BaseModel, Field as PField
+from pydantic import BaseModel
+from pydantic import Field as PField
 
 from ..frame import Frame
 from ..tool import InputAnchor, OutputAnchor, Tool

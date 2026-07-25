@@ -7,7 +7,8 @@ columns propagate to downstream field pickers via the cache-aware schema pass.
 from __future__ import annotations
 
 import polars as pl
-from pydantic import BaseModel, Field as PField
+from pydantic import BaseModel
+from pydantic import Field as PField
 
 from ..frame import Frame
 from ..tool import InputAnchor, OutputAnchor, Tool

@@ -36,10 +36,10 @@ def build_default_registry() -> ToolRegistry:
     from .tools.datetime_tool import DateTimeTool
     from .tools.filter import FilterTool
     from .tools.formula import FormulaTool
-    from .tools.json_parse import JsonParseTool
     from .tools.input_database import DatabaseInputTool
     from .tools.input_file import InputFileTool
     from .tools.join import JoinTool
+    from .tools.json_parse import JsonParseTool
     from .tools.output_database import DatabaseOutputTool
     from .tools.output_file import OutputFileTool
     from .tools.python_tool import PythonTool

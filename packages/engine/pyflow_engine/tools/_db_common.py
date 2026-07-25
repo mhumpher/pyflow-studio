@@ -12,7 +12,8 @@ from enum import Enum
 from urllib.parse import quote
 
 import polars as pl
-from pydantic import BaseModel, Field as PField
+from pydantic import BaseModel
+from pydantic import Field as PField
 
 from ..types import pyflow_to_polars
 

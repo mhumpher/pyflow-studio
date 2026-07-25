@@ -1,7 +1,8 @@
 """Formula — add or replace columns using the Pyflow formula language."""
 from __future__ import annotations
 
-from pydantic import BaseModel, Field as PField
+from pydantic import BaseModel
+from pydantic import Field as PField
 
 from ..formula import compile_expr
 from ..frame import Frame

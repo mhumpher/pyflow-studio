@@ -1,7 +1,8 @@
 """Filter — split rows by a boolean formula expression into True/False outputs."""
 from __future__ import annotations
 
-from pydantic import BaseModel, Field as PField
+from pydantic import BaseModel
+from pydantic import Field as PField
 
 from ..formula import compile_expr
 from ..frame import Frame

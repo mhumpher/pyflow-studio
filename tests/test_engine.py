@@ -1,5 +1,4 @@
 import pytest
-
 from pyflow_engine import Runner, WorkflowDoc
 from pyflow_engine.document import ancestors_including, topo_sort
 

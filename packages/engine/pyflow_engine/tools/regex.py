@@ -8,7 +8,8 @@ from __future__ import annotations
 from enum import Enum
 
 import polars as pl
-from pydantic import BaseModel, Field as PField
+from pydantic import BaseModel
+from pydantic import Field as PField
 
 from ..frame import Frame
 from ..tool import InputAnchor, OutputAnchor, Tool
