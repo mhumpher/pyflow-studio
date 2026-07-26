@@ -71,6 +71,35 @@ export async function validateFormula(
   return res.json();
 }
 
+export interface WorkflowFile {
+  name: string;
+}
+
+export async function listWorkflowFiles(): Promise<WorkflowFile[]> {
+  const res = await fetch(`${API_BASE}/workflows/files`);
+  if (!res.ok) throw new Error(`list workflows failed (${res.status})`);
+  return res.json();
+}
+
+export async function readWorkflowFile(name: string): Promise<any> {
+  const res = await fetch(`${API_BASE}/workflows/files/${encodeURIComponent(name)}`);
+  if (!res.ok) throw new Error(`open failed (${res.status})`);
+  return res.json();
+}
+
+export async function saveWorkflowFile(name: string, doc: unknown): Promise<{ name: string }> {
+  const res = await fetch(`${API_BASE}/workflows/files/${encodeURIComponent(name)}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ workflow: doc }),
+  });
+  if (!res.ok) {
+    const detail = await res.json().catch(() => ({}));
+    throw new Error(detail.detail || `save failed (${res.status})`);
+  }
+  return res.json();
+}
+
 export function runWorkflow(
   doc: unknown,
   onEvent: (event: any) => void,

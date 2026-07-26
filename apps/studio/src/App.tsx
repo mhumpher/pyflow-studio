@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import {
   Background,
   Controls,
@@ -19,6 +19,8 @@ import { ResultsPanel } from "./components/ResultsPanel";
 import { Toolbar } from "./components/Toolbar";
 
 const nodeTypes = { pyflow: PyflowNode };
+
+const AUTOSAVE_KEY = "pyflow.autosave";
 
 function Canvas() {
   const nodes = useStore((s) => s.nodes);
@@ -121,6 +123,44 @@ export default function App() {
     }, 350);
     return () => clearTimeout(handle);
   }, [structureSig, setSchemas]);
+
+  // Restore the last canvas from localStorage once the catalog is available (needed
+  // to rebuild node data). Captured at first render so autosave can't clobber it.
+  const catalog = useStore((s) => s.catalog);
+  const savedRef = useRef<string | null>(
+    typeof window !== "undefined" ? window.localStorage.getItem(AUTOSAVE_KEY) : null,
+  );
+  const restoredRef = useRef(false);
+  useEffect(() => {
+    if (restoredRef.current || catalog.length === 0) return;
+    restoredRef.current = true;
+    if (useStore.getState().nodes.length > 0) return;
+    try {
+      const saved = savedRef.current ? JSON.parse(savedRef.current) : null;
+      if (saved?.doc?.nodes?.length) {
+        useStore.getState().loadDoc(saved.doc);
+        if (saved.name) useStore.getState().setCurrentName(saved.name);
+      }
+    } catch {
+      /* ignore corrupt autosave */
+    }
+  }, [catalog]);
+
+  // Autosave the canvas (debounced) so a refresh doesn't lose work.
+  useEffect(() => {
+    const handle = setTimeout(() => {
+      try {
+        const st = useStore.getState();
+        window.localStorage.setItem(
+          AUTOSAVE_KEY,
+          JSON.stringify({ doc: st.workflowDoc(), name: st.currentName ?? null }),
+        );
+      } catch {
+        /* storage may be unavailable */
+      }
+    }, 500);
+    return () => clearTimeout(handle);
+  }, [nodes, edges]);
 
   return (
     <ReactFlowProvider>

@@ -87,6 +87,56 @@ body {
   color: var(--muted);
   font-size: 12px;
 }
+.pf-filename {
+  color: var(--text);
+  font-size: 13px;
+  opacity: 0.85;
+  border-left: 1px solid var(--border);
+  padding-left: 12px;
+}
+.pf-open-wrap {
+  position: relative;
+  display: inline-block;
+}
+.pf-menu-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+}
+.pf-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 50;
+  min-width: 190px;
+  max-height: 340px;
+  overflow-y: auto;
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+  padding: 4px;
+}
+.pf-menu-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  padding: 7px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 13px;
+}
+.pf-menu-item:hover {
+  background: var(--border);
+}
+.pf-menu-empty {
+  color: var(--muted);
+  font-size: 12px;
+  padding: 8px 10px;
+}
 
 /* Main layout */
 .pf-main {

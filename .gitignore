@@ -33,3 +33,5 @@ Thumbs.db
 examples/output/
 *.db
 *.sqlite
+# Saved workflows (user data)
+workflows/

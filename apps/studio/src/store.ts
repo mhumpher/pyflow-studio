@@ -41,6 +41,7 @@ interface StoreState {
   fitSignal: number;
   schemas: SchemaMap;
   functions: string[];
+  currentName?: string;
 
   setCatalog: (catalog: ToolDesc[]) => void;
   setSchemas: (schemas: SchemaMap) => void;
@@ -50,7 +51,9 @@ interface StoreState {
   onConnect: (conn: Connection) => void;
   addNode: (tool: ToolDesc, pos: { x: number; y: number }) => void;
   loadExample: () => void;
+  loadDoc: (doc: any) => void;
   clearCanvas: () => void;
+  setCurrentName: (name?: string) => void;
   select: (id?: string) => void;
   updateConfig: (id: string, key: string, value: unknown) => void;
   patchNode: (id: string, patch: Partial<PyflowNodeData>) => void;
@@ -167,7 +170,55 @@ export const useStore = create<StoreState>((set, get) => ({
     });
   },
 
-  clearCanvas: () => set({ nodes: [], edges: [], selectedId: undefined, preview: undefined, messages: [] }),
+  loadDoc: (doc: any) => {
+    const cat = get().catalog;
+    let maxN = 0;
+    let maxE = 0;
+    const nodes: Node<any>[] = (doc.nodes ?? []).map((n: any) => {
+      const tool = cat.find((t) => t.type === n.type);
+      const m = /^n(\d+)$/.exec(n.id);
+      if (m) maxN = Math.max(maxN, parseInt(m[1], 10));
+      return {
+        id: n.id,
+        type: "pyflow",
+        position: n.position ?? { x: 0, y: 0 },
+        data: {
+          toolType: n.type,
+          name: tool?.name ?? n.type,
+          inputs: tool?.inputs ?? [],
+          outputs: tool?.outputs ?? [],
+          config: n.config ?? {},
+          status: "idle" as const,
+        },
+      };
+    });
+    const edges: Edge[] = (doc.edges ?? []).map((e: any) => {
+      const m = /^e(\d+)$/.exec(e.id);
+      if (m) maxE = Math.max(maxE, parseInt(m[1], 10));
+      return {
+        id: e.id,
+        source: e.source.node,
+        target: e.target.node,
+        sourceHandle: e.source.anchor,
+        targetHandle: e.target.anchor,
+      };
+    });
+    nodeSeq = Math.max(nodeSeq, maxN);
+    edgeSeq = Math.max(edgeSeq, maxE);
+    set({
+      nodes,
+      edges,
+      selectedId: undefined,
+      preview: undefined,
+      messages: [],
+      fitSignal: get().fitSignal + 1,
+    });
+  },
+
+  clearCanvas: () =>
+    set({ nodes: [], edges: [], selectedId: undefined, preview: undefined, messages: [], currentName: undefined }),
+
+  setCurrentName: (name) => set({ currentName: name }),
 
   select: (id) => set({ selectedId: id }),
 

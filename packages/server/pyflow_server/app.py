@@ -111,6 +111,56 @@ def connections_inspect(req: InspectRequest) -> dict[str, Any]:
     return probe_schema(cfg)
 
 
+# --- Workflow files (save / open .pyflow in the local workspace) ------------
+
+def _workspace() -> Path:
+    ws = Path.cwd() / "workflows"
+    ws.mkdir(exist_ok=True)
+    return ws
+
+
+def _safe_workflow_path(name: str) -> Path:
+    stem = Path(name).name
+    if stem.endswith(".pyflow"):
+        stem = stem[: -len(".pyflow")]
+    if not re.fullmatch(r"[A-Za-z0-9_-]+", stem):
+        raise HTTPException(
+            status_code=400, detail="Workflow name may use letters, numbers, - and _ only"
+        )
+    return _workspace() / f"{stem}.pyflow"
+
+
+@app.get("/workflows/files")
+def list_workflow_files() -> list[dict[str, str]]:
+    return [{"name": p.stem} for p in sorted(_workspace().glob("*.pyflow"))]
+
+
+@app.get("/workflows/files/{name}")
+def read_workflow_file(name: str) -> dict[str, Any]:
+    path = _safe_workflow_path(name)
+    if not path.exists():
+        raise HTTPException(status_code=404, detail="Workflow not found")
+    try:
+        return WorkflowDoc.model_validate_json(path.read_text(encoding="utf-8")).model_dump()
+    except Exception as exc:
+        raise HTTPException(status_code=400, detail=f"Could not read workflow: {exc}")
+
+
+class SaveFileRequest(BaseModel):
+    workflow: dict[str, Any]
+
+
+@app.put("/workflows/files/{name}")
+def save_workflow_file(name: str, req: SaveFileRequest) -> dict[str, Any]:
+    try:
+        doc = WorkflowDoc.model_validate(req.workflow)
+    except Exception as exc:
+        raise HTTPException(status_code=400, detail=f"Invalid workflow: {exc}")
+    path = _safe_workflow_path(name)
+    doc.save(path)
+    return {"ok": True, "name": path.stem}
+
+
 @app.get("/workflows/{wf_id}/nodes/{node_id}/preview")
 def preview(wf_id: str, node_id: str, anchor: str | None = None) -> dict[str, Any]:
     runner = RESULTS.get(wf_id)

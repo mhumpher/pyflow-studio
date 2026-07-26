@@ -55,7 +55,9 @@ is public.
 
 **Goal: you can build, save, reopen, and iterate on real workflows** — today the canvas is lost on refresh.
 
-- 📋 **Save / Open `.pyflow` in the UI** — server endpoints + toolbar actions; recent-files list.
+- ✅ **Save / Open `.pyflow` in the UI** — server endpoints (`/workflows/files`) plus Save/Open toolbar
+  actions and a filename indicator, **and localStorage autosave** so a page refresh no longer loses the
+  canvas.
 - 📋 **Undo / redo, copy / paste, multi-select** on the canvas.
 - 📋 **Node enable/disable, annotations, and containers** (visual grouping).
 - 📋 **Richer editors** — Monaco for the formula and Python tools (syntax highlighting + field/function
