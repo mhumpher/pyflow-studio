@@ -17,6 +17,10 @@ export function Toolbar() {
   const loadExample = useStore((s) => s.loadExample);
   const clearCanvas = useStore((s) => s.clearCanvas);
   const currentName = useStore((s) => s.currentName);
+  const undo = useStore((s) => s.undo);
+  const redo = useStore((s) => s.redo);
+  const canUndo = useStore((s) => s.past.length > 0);
+  const canRedo = useStore((s) => s.future.length > 0);
   const [openMenu, setOpenMenu] = useState(false);
   const [files, setFiles] = useState<WorkflowFile[]>([]);
 
@@ -142,6 +146,12 @@ export function Toolbar() {
       >
         ↻ Fresh
       </button>
+      <button className="pf-btn" onClick={undo} disabled={running || !canUndo} title="Undo (Ctrl+Z)">
+        ↶
+      </button>
+      <button className="pf-btn" onClick={redo} disabled={running || !canRedo} title="Redo (Ctrl+Shift+Z)">
+        ↷
+      </button>
       <div className="pf-open-wrap">
         <button className="pf-btn" onClick={toggleOpen} disabled={running}>
           Open ▾
@@ -172,7 +182,9 @@ export function Toolbar() {
       <button className="pf-btn" onClick={clearCanvas} disabled={running}>
         Clear
       </button>
-      <span className="pf-hint">Drag tools · connect · Run · Save / Open</span>
+      <span className="pf-hint">
+        Run · Save/Open · Undo Ctrl+Z · Copy/Paste Ctrl+C/V · Shift-drag to multi-select
+      </span>
     </div>
   );
 }

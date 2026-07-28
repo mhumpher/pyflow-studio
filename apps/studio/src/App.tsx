@@ -64,6 +64,7 @@ function Canvas() {
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
+        onNodeDragStart={() => useStore.getState().takeSnapshot()}
         onNodeClick={(_, n) => select(n.id)}
         onPaneClick={() => select(undefined)}
         fitView
@@ -161,6 +162,32 @@ export default function App() {
     }, 500);
     return () => clearTimeout(handle);
   }, [nodes, edges]);
+
+  // Keyboard: undo/redo/copy/paste (ignored while typing in a field).
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const el = e.target as HTMLElement | null;
+      const tag = el?.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || el?.isContentEditable) return;
+      if (!(e.ctrlKey || e.metaKey)) return;
+      const st = useStore.getState();
+      const k = e.key.toLowerCase();
+      if (k === "z") {
+        e.preventDefault();
+        if (e.shiftKey) st.redo();
+        else st.undo();
+      } else if (k === "y") {
+        e.preventDefault();
+        st.redo();
+      } else if (k === "c") {
+        st.copySelection();
+      } else if (k === "v") {
+        st.pasteClipboard();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   return (
     <ReactFlowProvider>

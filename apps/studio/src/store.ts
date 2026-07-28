@@ -20,6 +20,14 @@ import type {
 
 let nodeSeq = 0;
 let edgeSeq = 0;
+let lastTag: string | undefined;
+let clipboard: { nodes: Node<any>[]; edges: Edge[] } | null = null;
+const HISTORY_LIMIT = 60;
+
+interface Snapshot {
+  nodes: Node<any>[];
+  edges: Edge[];
+}
 
 function defaultFor(field: ConfigField): unknown {
   if (field.type === "array") return [];
@@ -42,6 +50,8 @@ interface StoreState {
   schemas: SchemaMap;
   functions: string[];
   currentName?: string;
+  past: Snapshot[];
+  future: Snapshot[];
 
   setCatalog: (catalog: ToolDesc[]) => void;
   setSchemas: (schemas: SchemaMap) => void;
@@ -61,6 +71,11 @@ interface StoreState {
   setRunning: (running: boolean) => void;
   addMessage: (m: RunMessage) => void;
   setPreview: (preview?: PreviewData, anchor?: string) => void;
+  takeSnapshot: (tag?: string) => void;
+  undo: () => void;
+  redo: () => void;
+  copySelection: () => void;
+  pasteClipboard: () => void;
   workflowDoc: () => unknown;
 }
 
@@ -73,19 +88,28 @@ export const useStore = create<StoreState>((set, get) => ({
   fitSignal: 0,
   schemas: {},
   functions: [],
+  past: [],
+  future: [],
 
   setCatalog: (catalog) => set({ catalog }),
   setSchemas: (schemas) => set({ schemas }),
   setFunctions: (functions) => set({ functions }),
 
-  onNodesChange: (changes) =>
-    set({ nodes: applyNodeChanges(changes, get().nodes) as Node<any>[] }),
-  onEdgesChange: (changes) =>
-    set({ edges: applyEdgeChanges(changes, get().edges) }),
-  onConnect: (conn) =>
-    set({ edges: addEdge({ ...conn, id: `e${++edgeSeq}` }, get().edges) }),
+  onNodesChange: (changes) => {
+    if (changes.some((c) => c.type === "remove")) get().takeSnapshot();
+    set({ nodes: applyNodeChanges(changes, get().nodes) as Node<any>[] });
+  },
+  onEdgesChange: (changes) => {
+    if (changes.some((c) => c.type === "remove")) get().takeSnapshot();
+    set({ edges: applyEdgeChanges(changes, get().edges) });
+  },
+  onConnect: (conn) => {
+    get().takeSnapshot();
+    set({ edges: addEdge({ ...conn, id: `e${++edgeSeq}` }, get().edges) });
+  },
 
   addNode: (tool, pos) => {
+    get().takeSnapshot();
     const id = `n${++nodeSeq}`;
     const config: Record<string, unknown> = {};
     for (const f of tool.configFields) {
@@ -157,6 +181,7 @@ export const useStore = create<StoreState>((set, get) => ({
       targetHandle: "in",
     });
 
+    get().takeSnapshot();
     set({
       nodes: [n1, n2, n3, n4, n5] as Node<any>[],
       edges: [
@@ -205,31 +230,38 @@ export const useStore = create<StoreState>((set, get) => ({
     });
     nodeSeq = Math.max(nodeSeq, maxN);
     edgeSeq = Math.max(edgeSeq, maxE);
+    lastTag = undefined;
     set({
       nodes,
       edges,
       selectedId: undefined,
       preview: undefined,
       messages: [],
+      past: [],
+      future: [],
       fitSignal: get().fitSignal + 1,
     });
   },
 
-  clearCanvas: () =>
-    set({ nodes: [], edges: [], selectedId: undefined, preview: undefined, messages: [], currentName: undefined }),
+  clearCanvas: () => {
+    get().takeSnapshot();
+    set({ nodes: [], edges: [], selectedId: undefined, preview: undefined, messages: [], currentName: undefined });
+  },
 
   setCurrentName: (name) => set({ currentName: name }),
 
   select: (id) => set({ selectedId: id }),
 
-  updateConfig: (id, key, value) =>
+  updateConfig: (id, key, value) => {
+    get().takeSnapshot(`cfg:${id}:${key}`);
     set({
       nodes: get().nodes.map((n) =>
         n.id === id
           ? { ...n, data: { ...n.data, config: { ...n.data.config, [key]: value } } }
           : n,
       ),
-    }),
+    });
+  },
 
   patchNode: (id, patch) =>
     set({
@@ -250,6 +282,97 @@ export const useStore = create<StoreState>((set, get) => ({
   setRunning: (running) => set({ running }),
   addMessage: (m) => set({ messages: [...get().messages, m] }),
   setPreview: (preview, anchor) => set({ preview, previewAnchor: anchor }),
+
+  takeSnapshot: (tag) => {
+    // Coalesce consecutive edits with the same tag (e.g. typing in one field) so
+    // they collapse into a single undo step.
+    if (tag && tag === lastTag) return;
+    lastTag = tag;
+    const { nodes, edges, past } = get();
+    const next = [...past, { nodes, edges }];
+    if (next.length > HISTORY_LIMIT) next.shift();
+    set({ past: next, future: [] });
+  },
+
+  undo: () => {
+    const { past, future, nodes, edges } = get();
+    if (past.length === 0) return;
+    lastTag = undefined;
+    const prev = past[past.length - 1];
+    set({
+      past: past.slice(0, -1),
+      future: [...future, { nodes, edges }],
+      nodes: prev.nodes,
+      edges: prev.edges,
+      selectedId: undefined,
+      preview: undefined,
+    });
+  },
+
+  redo: () => {
+    const { past, future, nodes, edges } = get();
+    if (future.length === 0) return;
+    lastTag = undefined;
+    const next = future[future.length - 1];
+    set({
+      future: future.slice(0, -1),
+      past: [...past, { nodes, edges }],
+      nodes: next.nodes,
+      edges: next.edges,
+      selectedId: undefined,
+      preview: undefined,
+    });
+  },
+
+  copySelection: () => {
+    const { nodes, edges } = get();
+    const selected = nodes.filter((n) => n.selected);
+    if (selected.length === 0) return;
+    const ids = new Set(selected.map((n) => n.id));
+    clipboard = {
+      nodes: selected.map((n) => ({
+        ...n,
+        data: { ...n.data, config: JSON.parse(JSON.stringify((n.data as PyflowNodeData).config ?? {})) },
+      })),
+      edges: edges.filter((e) => ids.has(e.source) && ids.has(e.target)),
+    };
+  },
+
+  pasteClipboard: () => {
+    if (!clipboard || clipboard.nodes.length === 0) return;
+    get().takeSnapshot();
+    const idMap = new Map<string, string>();
+    const offset = 40;
+    const newNodes: Node<any>[] = clipboard.nodes.map((n) => {
+      const newId = `n${++nodeSeq}`;
+      idMap.set(n.id, newId);
+      return {
+        ...n,
+        id: newId,
+        selected: true,
+        position: { x: n.position.x + offset, y: n.position.y + offset },
+        data: {
+          ...n.data,
+          config: JSON.parse(JSON.stringify((n.data as PyflowNodeData).config ?? {})),
+          status: "idle",
+          rows: undefined,
+          anchorRows: undefined,
+          cached: undefined,
+        },
+      };
+    });
+    const newEdges: Edge[] = clipboard.edges.map((e) => ({
+      ...e,
+      id: `e${++edgeSeq}`,
+      source: idMap.get(e.source) ?? e.source,
+      target: idMap.get(e.target) ?? e.target,
+    }));
+    set({
+      nodes: [...get().nodes.map((n) => ({ ...n, selected: false })), ...newNodes],
+      edges: [...get().edges, ...newEdges],
+      selectedId: newNodes[newNodes.length - 1]?.id,
+    });
+  },
 
   workflowDoc: () => {
     const { nodes, edges } = get();
