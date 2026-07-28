@@ -65,6 +65,7 @@ interface StoreState {
   clearCanvas: () => void;
   setCurrentName: (name?: string) => void;
   select: (id?: string) => void;
+  toggleDisabled: (id?: string) => void;
   updateConfig: (id: string, key: string, value: unknown) => void;
   patchNode: (id: string, patch: Partial<PyflowNodeData>) => void;
   resetRun: () => void;
@@ -214,6 +215,7 @@ export const useStore = create<StoreState>((set, get) => ({
           outputs: tool?.outputs ?? [],
           config: n.config ?? {},
           status: "idle" as const,
+          disabled: n.disabled ?? false,
         },
       };
     });
@@ -251,6 +253,25 @@ export const useStore = create<StoreState>((set, get) => ({
   setCurrentName: (name) => set({ currentName: name }),
 
   select: (id) => set({ selectedId: id }),
+
+  toggleDisabled: (id) => {
+    const { nodes, selectedId } = get();
+    const target = new Set(
+      id ? [id] : nodes.filter((n) => n.selected).map((n) => n.id),
+    );
+    if (target.size === 0 && selectedId) target.add(selectedId);
+    if (target.size === 0) return;
+    get().takeSnapshot();
+    // If any target is currently enabled, disable them all; otherwise enable all.
+    const disable = nodes.some(
+      (n) => target.has(n.id) && !(n.data as PyflowNodeData).disabled,
+    );
+    set({
+      nodes: nodes.map((n) =>
+        target.has(n.id) ? { ...n, data: { ...n.data, disabled: disable } } : n,
+      ),
+    });
+  },
 
   updateConfig: (id, key, value) => {
     get().takeSnapshot(`cfg:${id}:${key}`);
@@ -385,6 +406,7 @@ export const useStore = create<StoreState>((set, get) => ({
         type: (n.data as PyflowNodeData).toolType,
         position: { x: n.position.x, y: n.position.y },
         config: (n.data as PyflowNodeData).config,
+        disabled: (n.data as PyflowNodeData).disabled ?? false,
       })),
       edges: edges.map((e) => ({
         id: e.id,

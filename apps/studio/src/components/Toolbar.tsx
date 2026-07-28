@@ -47,14 +47,17 @@ export function Toolbar() {
           } else if (e.type === "node_error") {
             st.patchNode(e.node, { status: "error" });
             st.addMessage({ level: "error", text: e.detail, node: e.node });
+          } else if (e.type === "node_skipped") {
+            st.patchNode(e.node, { status: "skipped" });
           } else if (e.type === "node_message") {
             st.addMessage({ level: e.level, text: e.text, node: e.node });
           } else if (e.type === "run_error") {
             st.addMessage({ level: "error", text: `${e.code}: ${e.detail}` });
           } else if (e.type === "run_completed" && e.computed !== undefined) {
+            const skipped = e.skipped ? `, skipped ${e.skipped} disabled` : "";
             st.addMessage({
               level: "info",
-              text: `Run complete — computed ${e.computed}, reused ${e.cached} cached`,
+              text: `Run complete — computed ${e.computed}, reused ${e.cached} cached${skipped}`,
             });
           }
         },

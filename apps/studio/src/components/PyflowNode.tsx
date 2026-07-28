@@ -8,14 +8,22 @@ export function PyflowNode({ data, selected }: NodeProps) {
   const d = data as unknown as PyflowNodeData;
   const height = HEADER + Math.max(d.inputs.length, d.outputs.length, 1) * GAP;
 
+  const cls = [
+    "pf-node",
+    `status-${d.status}`,
+    selected ? "selected" : "",
+    d.disabled ? "disabled" : "",
+    d.dimmed ? "dimmed" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
   return (
-    <div
-      className={`pf-node status-${d.status} ${selected ? "selected" : ""}`}
-      style={{ minHeight: height }}
-    >
+    <div className={cls} style={{ minHeight: height }}>
       <div className="pf-node-header">
         <span className="pf-dot" />
         <span className="pf-node-name">{d.name}</span>
+        {d.disabled && <span className="pf-node-off">off</span>}
       </div>
       {typeof d.rows === "number" && (
         <div className="pf-node-rows">

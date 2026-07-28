@@ -36,7 +36,7 @@ export interface ToolDesc {
   configFields: ConfigField[];
 }
 
-export type NodeStatus = "idle" | "queued" | "running" | "done" | "error";
+export type NodeStatus = "idle" | "queued" | "running" | "done" | "error" | "skipped";
 
 export interface PyflowNodeData {
   toolType: string;
@@ -48,6 +48,8 @@ export interface PyflowNodeData {
   rows?: number;
   anchorRows?: Record<string, number>;
   cached?: boolean;
+  disabled?: boolean;
+  dimmed?: boolean; // render-only: downstream of a disabled node (never persisted)
 }
 
 export interface SchemaField {

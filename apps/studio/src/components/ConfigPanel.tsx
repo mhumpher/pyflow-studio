@@ -354,6 +354,7 @@ export function ConfigPanel() {
   const catalog = useStore((s) => s.catalog);
   const schemas = useStore((s) => s.schemas);
   const updateConfig = useStore((s) => s.updateConfig);
+  const toggleDisabled = useStore((s) => s.toggleDisabled);
 
   const node = nodes.find((n) => n.id === selectedId);
   if (!node) {
@@ -384,6 +385,14 @@ export function ConfigPanel() {
     <aside className="pf-config">
       <div className="pf-panel-title">{data.name}</div>
       <div className="pf-panel-subtitle pf-muted">{data.toolType}</div>
+      <label className="pf-check pf-disable-toggle">
+        <input
+          type="checkbox"
+          checked={Boolean(data.disabled)}
+          onChange={() => toggleDisabled(node.id)}
+        />
+        Disable — skip this tool and everything downstream
+      </label>
       {nodeSchema?.error && <div className="pf-err pf-config-err">{nodeSchema.error}</div>}
 
       <div className="pf-fields">

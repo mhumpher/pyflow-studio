@@ -15,7 +15,7 @@ import polars as pl
 
 from .cache import RunCache, compute_hashes, materialize
 from .context import RunContext
-from .document import WorkflowDoc, ancestors_including, topo_sort
+from .document import WorkflowDoc, ancestors_including, disabled_closure, topo_sort
 from .execution import gather_inputs, incoming_edges
 from .frame import Frame
 from .registry import ToolRegistry, build_default_registry
@@ -55,14 +55,18 @@ class Runner:
         nodes = doc.node_by_id()
         incoming = incoming_edges(doc)
         hashes = compute_hashes(doc, self.registry) if self.cache is not None else {}
+        skipped = disabled_closure(doc)
 
         self.emit({"type": "run_started", "nodes": len(order)})
         cached_n = 0
         computed_n = 0
+        skipped_n = 0
         try:
             for node_id in order:
                 node = nodes[node_id]
-                if node.disabled:
+                if node_id in skipped:
+                    self.emit({"type": "node_skipped", "node": node_id})
+                    skipped_n += 1
                     continue
                 if cancelled and cancelled():
                     self.emit({"type": "run_cancelled"})
@@ -82,6 +86,7 @@ class Runner:
                 "nodes": len(order),
                 "cached": cached_n,
                 "computed": computed_n,
+                "skipped": skipped_n,
             }
         )
         return self

@@ -22,7 +22,7 @@ import polars as pl
 
 from .cache import RunCache, compute_hashes
 from .context import RunContext
-from .document import WorkflowDoc, topo_sort
+from .document import WorkflowDoc, disabled_closure, topo_sort
 from .execution import gather_inputs, incoming_edges
 from .frame import Frame
 from .registry import ToolRegistry, build_default_registry
@@ -71,6 +71,7 @@ def infer_schemas(
     nodes = doc.node_by_id()
     incoming = incoming_edges(doc)
     hashes = compute_hashes(doc, registry) if cache is not None else {}
+    skipped = disabled_closure(doc)
     frames: dict[str, dict[str, Frame]] = {}
     result: dict[str, dict[str, Any]] = {}
 
@@ -89,7 +90,9 @@ def infer_schemas(
         for anchor, value in inputs.items():
             entry["inputs"][anchor] = _anchor_schema(value)
 
-        if node.disabled:
+        # A disabled node — or anything downstream of one — produces no output and
+        # is not threaded onward, so its descendants resolve no input schema either.
+        if node_id in skipped:
             result[node_id] = entry
             continue
 

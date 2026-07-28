@@ -80,6 +80,30 @@ def topo_sort(doc: WorkflowDoc) -> list[str]:
     return order
 
 
+def disabled_closure(doc: WorkflowDoc) -> set[str]:
+    """Nodes that must not run: those explicitly ``disabled``, plus everything
+    downstream of a disabled node.
+
+    Disabling a tool disables its descendants too (Alteryx-style) — a downstream
+    node can't run once one of its inputs is switched off, so the whole tail is
+    skipped rather than left to fail on a missing input.
+    """
+    children: dict[str, list[str]] = {n.id: [] for n in doc.nodes}
+    for e in doc.edges:
+        if e.source.node in children:
+            children[e.source.node].append(e.target.node)
+
+    seen: set[str] = set()
+    stack = [n.id for n in doc.nodes if n.disabled]
+    while stack:
+        cur = stack.pop()
+        if cur in seen:
+            continue
+        seen.add(cur)
+        stack.extend(children.get(cur, []))
+    return seen
+
+
 def ancestors_including(doc: WorkflowDoc, node_id: str) -> set[str]:
     """All upstream nodes of node_id, plus node_id itself."""
     parents: dict[str, list[str]] = {n.id: [] for n in doc.nodes}

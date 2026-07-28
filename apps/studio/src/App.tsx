@@ -2,7 +2,9 @@ import { useCallback, useEffect, useMemo, useRef } from "react";
 import {
   Background,
   Controls,
+  type Edge,
   MiniMap,
+  type Node,
   ReactFlow,
   ReactFlowProvider,
   useReactFlow,
@@ -22,9 +24,35 @@ const nodeTypes = { pyflow: PyflowNode };
 
 const AUTOSAVE_KEY = "pyflow.autosave";
 
+// Mark every node downstream of a disabled node as `dimmed` (render-only) so the
+// whole switched-off tail is visibly de-emphasized, matching how the engine skips it.
+function withDownstreamDimmed(nodes: Node<any>[], edges: Edge[]): Node<any>[] {
+  const disabled = nodes.filter((n) => (n.data as PyflowNodeData).disabled).map((n) => n.id);
+  if (disabled.length === 0) return nodes;
+  const children = new Map<string, string[]>();
+  for (const e of edges) {
+    const arr = children.get(e.source);
+    if (arr) arr.push(e.target);
+    else children.set(e.source, [e.target]);
+  }
+  const off = new Set<string>();
+  const stack = [...disabled];
+  while (stack.length) {
+    for (const c of children.get(stack.pop()!) ?? []) {
+      if (!off.has(c)) {
+        off.add(c);
+        stack.push(c);
+      }
+    }
+  }
+  if (off.size === 0) return nodes;
+  return nodes.map((n) => (off.has(n.id) ? { ...n, data: { ...n.data, dimmed: true } } : n));
+}
+
 function Canvas() {
-  const nodes = useStore((s) => s.nodes);
+  const rawNodes = useStore((s) => s.nodes);
   const edges = useStore((s) => s.edges);
+  const nodes = useMemo(() => withDownstreamDimmed(rawNodes, edges), [rawNodes, edges]);
   const onNodesChange = useStore((s) => s.onNodesChange);
   const onEdgesChange = useStore((s) => s.onEdgesChange);
   const onConnect = useStore((s) => s.onConnect);
