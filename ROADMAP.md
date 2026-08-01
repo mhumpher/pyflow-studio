@@ -62,7 +62,9 @@ is public.
   copy/paste of the selected subgraph (Ctrl+C/V), and Shift-drag box-select.
 - 🚧 **Node enable/disable, annotations, and containers** (visual grouping). *Enable/disable ships:
   toggle a tool off from its config panel and the engine skips it and everything downstream (the whole
-  tail dims on the canvas). Annotations and containers are still to come.*
+  tail dims on the canvas). Annotations ship too: drag a **Comment** from the palette, edit its text,
+  pick a color; notes render behind the tools and persist in the `.pyflow` file. Containers (grouping)
+  are still to come.*
 - 📋 **Richer editors** — Monaco for the formula and Python tools (syntax highlighting + field/function
   autocomplete) instead of plain textareas.
 

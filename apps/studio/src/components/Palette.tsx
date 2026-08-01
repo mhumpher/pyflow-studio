@@ -15,6 +15,21 @@ export function Palette() {
       {catalog.length === 0 && (
         <p className="pf-empty">No tools loaded. Is the server running?</p>
       )}
+      <div className="pf-cat">
+        <div className="pf-cat-name">Annotate</div>
+        <div
+          className="pf-tool"
+          draggable
+          onDragStart={(e) => {
+            e.dataTransfer.setData("application/pyflow-annotation", "1");
+            e.dataTransfer.effectAllowed = "move";
+          }}
+          title="Drag onto the canvas to add a comment"
+        >
+          <span className="pf-tool-icon">✎</span>
+          Comment
+        </div>
+      </div>
       {Object.entries(byCategory).map(([category, tools]) => (
         <div key={category} className="pf-cat">
           <div className="pf-cat-name">{category}</div>

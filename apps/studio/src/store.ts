@@ -9,7 +9,9 @@ import {
   type Node,
   type NodeChange,
 } from "@xyflow/react";
+import { DEFAULT_ANNOTATION_COLOR } from "./annotations";
 import type {
+  AnnotationData,
   ConfigField,
   PreviewData,
   PyflowNodeData,
@@ -20,6 +22,7 @@ import type {
 
 let nodeSeq = 0;
 let edgeSeq = 0;
+let annoSeq = 0;
 let lastTag: string | undefined;
 let clipboard: { nodes: Node<any>[]; edges: Edge[] } | null = null;
 const HISTORY_LIMIT = 60;
@@ -60,6 +63,8 @@ interface StoreState {
   onEdgesChange: (changes: EdgeChange[]) => void;
   onConnect: (conn: Connection) => void;
   addNode: (tool: ToolDesc, pos: { x: number; y: number }) => void;
+  addAnnotation: (pos?: { x: number; y: number }) => void;
+  updateAnnotation: (id: string, patch: Partial<AnnotationData>) => void;
   loadExample: () => void;
   loadDoc: (doc: any) => void;
   clearCanvas: () => void;
@@ -130,6 +135,28 @@ export const useStore = create<StoreState>((set, get) => ({
       } as PyflowNodeData,
     };
     set({ nodes: [...get().nodes, node], selectedId: id });
+  },
+
+  addAnnotation: (pos) => {
+    get().takeSnapshot();
+    const id = `a${++annoSeq}`;
+    const node: Node<any> = {
+      id,
+      type: "annotation",
+      position: pos ?? { x: 80 + annoSeq * 24, y: 80 + annoSeq * 24 },
+      data: { kind: "annotation", text: "", color: DEFAULT_ANNOTATION_COLOR } as AnnotationData,
+    };
+    // Prepend so notes render behind the tool nodes.
+    set({ nodes: [node, ...get().nodes], selectedId: id });
+  },
+
+  updateAnnotation: (id, patch) => {
+    get().takeSnapshot(`anno:${id}:${Object.keys(patch).join(",")}`);
+    set({
+      nodes: get().nodes.map((n) =>
+        n.id === id ? { ...n, data: { ...n.data, ...patch } } : n,
+      ),
+    });
   },
 
   loadExample: () => {
@@ -230,11 +257,28 @@ export const useStore = create<StoreState>((set, get) => ({
         targetHandle: e.target.anchor,
       };
     });
+    let maxA = 0;
+    const annotations: Node<any>[] = (doc.annotations ?? []).map((a: any) => {
+      const m = /^a(\d+)$/.exec(a.id ?? "");
+      if (m) maxA = Math.max(maxA, parseInt(m[1], 10));
+      return {
+        id: a.id,
+        type: "annotation",
+        position: a.position ?? { x: 0, y: 0 },
+        data: {
+          kind: "annotation",
+          text: a.text ?? "",
+          color: a.color ?? DEFAULT_ANNOTATION_COLOR,
+        } as AnnotationData,
+      };
+    });
     nodeSeq = Math.max(nodeSeq, maxN);
     edgeSeq = Math.max(edgeSeq, maxE);
+    annoSeq = Math.max(annoSeq, maxA);
     lastTag = undefined;
     set({
-      nodes,
+      // Annotations first so they render behind the tool nodes.
+      nodes: [...annotations, ...nodes],
       edges,
       selectedId: undefined,
       preview: undefined,
@@ -401,18 +445,28 @@ export const useStore = create<StoreState>((set, get) => ({
       pyflow_version: "1.0",
       id: "current",
       name: "Studio workflow",
-      nodes: nodes.map((n) => ({
-        id: n.id,
-        type: (n.data as PyflowNodeData).toolType,
-        position: { x: n.position.x, y: n.position.y },
-        config: (n.data as PyflowNodeData).config,
-        disabled: (n.data as PyflowNodeData).disabled ?? false,
-      })),
+      nodes: nodes
+        .filter((n) => n.type !== "annotation")
+        .map((n) => ({
+          id: n.id,
+          type: (n.data as PyflowNodeData).toolType,
+          position: { x: n.position.x, y: n.position.y },
+          config: (n.data as PyflowNodeData).config,
+          disabled: (n.data as PyflowNodeData).disabled ?? false,
+        })),
       edges: edges.map((e) => ({
         id: e.id,
         source: { node: e.source, anchor: e.sourceHandle || "out" },
         target: { node: e.target, anchor: e.targetHandle || "in" },
       })),
+      annotations: nodes
+        .filter((n) => n.type === "annotation")
+        .map((n) => ({
+          id: n.id,
+          position: { x: n.position.x, y: n.position.y },
+          text: (n.data as AnnotationData).text,
+          color: (n.data as AnnotationData).color,
+        })),
     };
   },
 }));

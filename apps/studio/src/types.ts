@@ -52,6 +52,12 @@ export interface PyflowNodeData {
   dimmed?: boolean; // render-only: downstream of a disabled node (never persisted)
 }
 
+export interface AnnotationData {
+  kind: "annotation";
+  text: string;
+  color: string;
+}
+
 export interface SchemaField {
   name: string;
   type: string;

@@ -1,7 +1,15 @@
 import { useEffect, useRef, useState } from "react";
+import type { Node } from "@xyflow/react";
 import { inspectConnection, validateFormula } from "../api";
+import { ANNOTATION_COLORS } from "../annotations";
 import { useStore } from "../store";
-import type { ConfigField, FormulaValidation, PyflowNodeData, SchemaField } from "../types";
+import type {
+  AnnotationData,
+  ConfigField,
+  FormulaValidation,
+  PyflowNodeData,
+  SchemaField,
+} from "../types";
 
 const PYFLOW_TYPES = [
   "",
@@ -348,6 +356,44 @@ function DbActions({ nodeId, config }: { nodeId: string; config: Record<string, 
   );
 }
 
+function AnnotationConfig({ node }: { node: Node<any> }) {
+  const updateAnnotation = useStore((s) => s.updateAnnotation);
+  const d = node.data as AnnotationData;
+  return (
+    <aside className="pf-config">
+      <div className="pf-panel-title">Comment</div>
+      <div className="pf-panel-subtitle pf-muted">annotation</div>
+      <div className="pf-fields">
+        <div className="pf-field">
+          <span className="pf-field-label">Text</span>
+          <textarea
+            className="pf-input pf-formula-input"
+            rows={4}
+            value={d.text}
+            onChange={(e) => updateAnnotation(node.id, { text: e.target.value })}
+            placeholder="Comment…"
+          />
+        </div>
+        <div className="pf-field">
+          <span className="pf-field-label">Color</span>
+          <div className="pf-swatches">
+            {ANNOTATION_COLORS.map((c) => (
+              <button
+                key={c}
+                type="button"
+                className={`pf-swatch ${d.color === c ? "selected" : ""}`}
+                style={{ background: c }}
+                onClick={() => updateAnnotation(node.id, { color: c })}
+                aria-label={`Set comment color ${c}`}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    </aside>
+  );
+}
+
 export function ConfigPanel() {
   const selectedId = useStore((s) => s.selectedId);
   const nodes = useStore((s) => s.nodes);
@@ -365,6 +411,8 @@ export function ConfigPanel() {
       </aside>
     );
   }
+
+  if (node.type === "annotation") return <AnnotationConfig node={node} />;
 
   const data = node.data as PyflowNodeData;
   const tool = catalog.find((t) => t.type === data.toolType);
