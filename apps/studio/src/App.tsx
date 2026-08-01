@@ -101,6 +101,7 @@ function Canvas() {
         onNodeDragStart={() => useStore.getState().takeSnapshot()}
         onNodeClick={(_, n) => select(n.id)}
         onPaneClick={() => select(undefined)}
+        deleteKeyCode={["Backspace", "Delete"]}
         fitView
         proOptions={{ hideAttribution: true }}
       >
