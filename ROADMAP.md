@@ -15,10 +15,10 @@ and priorities may shift. Legend: ✅ done · 🚧 in progress · 📋 planned.
 
 - ✅ Monorepo: pure-Python **engine**, tool-authoring **SDK**, FastAPI **server**, React Flow **Studio**
 - ✅ Visual canvas — drag/drop, multi-anchor tools, live per-node run status, sampled previews + profiling
-- ✅ **22 tools**: file + database I/O (SQL Server / Redshift / Oracle / Postgres / MySQL / SQLite), prep
-  (Select, Filter, Formula, Sort, Sample, Unique), blend (Join, Union), the four Transform reshapers
-  (Summarize, Cross Tab, Unpivot, Transpose), a Parse pack (Text to Columns, RegEx, DateTime, JSON), and
-  a custom multi-in/multi-out **Python tool**
+- ✅ **23 tools**: file + database I/O (SQL Server / Redshift / Oracle / Postgres / MySQL / SQLite), a
+  **Text Input** tool (type data straight into a typed grid), prep (Select, Filter, Formula, Sort, Sample,
+  Unique), blend (Join, Union), the four Transform reshapers (Summarize, Cross Tab, Unpivot, Transpose), a
+  Parse pack (Text to Columns, RegEx, DateTime, JSON), and a custom multi-in/multi-out **Python tool**
 - ✅ Alteryx-style **formula language** (`[Field]`, `IF…ENDIF`, ~30 functions) compiled to Polars
 - ✅ **Design-time schema inference** with cache-aware propagation (data-dependent columns appear after a run)
 - ✅ **Content-addressed incremental caching** (edit one node → only it and its descendants recompute)

@@ -38,6 +38,7 @@ def build_default_registry() -> ToolRegistry:
     from .tools.formula import FormulaTool
     from .tools.input_database import DatabaseInputTool
     from .tools.input_file import InputFileTool
+    from .tools.input_text import TextInputTool
     from .tools.join import JoinTool
     from .tools.json_parse import JsonParseTool
     from .tools.output_database import DatabaseOutputTool
@@ -58,6 +59,7 @@ def build_default_registry() -> ToolRegistry:
     reg.register_all(
         [
             InputFileTool,
+            TextInputTool,
             DatabaseInputTool,
             SelectTool,
             FilterTool,

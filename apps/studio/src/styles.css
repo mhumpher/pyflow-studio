@@ -363,6 +363,74 @@ body {
   border-color: var(--text);
 }
 
+.pf-grid {
+  font-size: 12px;
+}
+.pf-grid-scroll {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+.pf-grid-table {
+  border-collapse: collapse;
+  width: max-content;
+  min-width: 100%;
+}
+.pf-grid-table th,
+.pf-grid-table td {
+  border: 1px solid var(--border);
+  padding: 0;
+  vertical-align: top;
+}
+.pf-grid-name {
+  width: 100px;
+  border: none;
+  background: var(--bg);
+  color: var(--text);
+  font-weight: 600;
+  padding: 4px 6px;
+  box-sizing: border-box;
+}
+.pf-grid-colctrl {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px;
+  background: var(--bg-elev);
+}
+.pf-grid-type {
+  flex: 1;
+  min-width: 0;
+  background: var(--bg-elev);
+  color: var(--muted);
+  border: none;
+  font-size: 10px;
+}
+.pf-grid-cell {
+  width: 100px;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  padding: 4px 6px;
+  box-sizing: border-box;
+}
+.pf-grid-cell:focus {
+  outline: 1px solid var(--accent);
+  background: var(--bg);
+}
+.pf-grid-addcol,
+.pf-grid-rowctrl {
+  background: var(--bg-elev);
+  text-align: center;
+  padding: 2px;
+}
+.pf-grid-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 6px;
+}
+
 .react-flow__handle {
   width: 9px;
   height: 9px;

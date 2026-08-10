@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import type { Node } from "@xyflow/react";
 import { inspectConnection, validateFormula } from "../api";
 import { ANNOTATION_COLORS } from "../annotations";
+import { GridEditor } from "./GridEditor";
 import { useStore } from "../store";
 import type {
   AnnotationData,
@@ -188,6 +189,7 @@ function ScalarInput({
 }) {
   const [editorKind, editorAnchor] = (field.editor ?? "").split(":");
   const colsFor = editorAnchor ? ctx.anchorColumns[editorAnchor] ?? [] : ctx.columns;
+  if (editorKind === "grid") return <GridEditor value={value} onChange={onChange} />;
   if (editorKind === "field") return <ColumnSelect columns={colsFor} value={value} onChange={onChange} />;
   if (editorKind === "type") return <TypeSelect value={value} onChange={onChange} />;
   if (editorKind === "formula") return <FormulaInput value={value} columns={ctx.columns} onChange={onChange} />;
