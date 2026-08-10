@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Background,
   Controls,
@@ -24,6 +24,53 @@ import { Toolbar } from "./components/Toolbar";
 const nodeTypes = { pyflow: PyflowNode, annotation: AnnotationNode };
 
 const AUTOSAVE_KEY = "pyflow.autosave";
+const CONFIG_WIDTH_KEY = "pyflow.configWidth";
+const CONFIG_W_MIN = 260;
+const CONFIG_W_MAX = 760;
+const CONFIG_W_DEFAULT = 340;
+
+// Draggable divider that resizes the right config pane. Reports the new width up;
+// the parent persists it and feeds it back as the --pf-config-w CSS variable.
+function ResizeHandle({
+  width,
+  onResize,
+}: {
+  width: number;
+  onResize: (w: number) => void;
+}) {
+  const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    const el = e.currentTarget;
+    const startX = e.clientX;
+    const startW = width;
+    el.setPointerCapture(e.pointerId);
+    const move = (ev: PointerEvent) => {
+      // Dragging left (toward the canvas) widens the config pane.
+      const next = Math.min(CONFIG_W_MAX, Math.max(CONFIG_W_MIN, startW + (startX - ev.clientX)));
+      onResize(next);
+    };
+    const up = () => {
+      el.releasePointerCapture(e.pointerId);
+      el.removeEventListener("pointermove", move);
+      el.removeEventListener("pointerup", up);
+      document.body.classList.remove("pf-resizing");
+    };
+    el.addEventListener("pointermove", move);
+    el.addEventListener("pointerup", up);
+    document.body.classList.add("pf-resizing");
+  };
+
+  return (
+    <div
+      className="pf-resizer"
+      onPointerDown={onPointerDown}
+      onDoubleClick={() => onResize(CONFIG_W_DEFAULT)}
+      role="separator"
+      aria-orientation="vertical"
+      title="Drag to resize — double-click to reset"
+    />
+  );
+}
 
 // Mark every node downstream of a disabled node as `dimmed` (render-only) so the
 // whole switched-off tail is visibly de-emphasized, matching how the engine skips it.
@@ -125,6 +172,15 @@ export default function App() {
   const setSchemas = useStore((s) => s.setSchemas);
   const nodes = useStore((s) => s.nodes);
   const edges = useStore((s) => s.edges);
+
+  // Width of the right config pane (drag-resizable, persisted).
+  const [configWidth, setConfigWidth] = useState(() => {
+    const saved = Number(window.localStorage.getItem(CONFIG_WIDTH_KEY));
+    return saved >= CONFIG_W_MIN && saved <= CONFIG_W_MAX ? saved : CONFIG_W_DEFAULT;
+  });
+  useEffect(() => {
+    window.localStorage.setItem(CONFIG_WIDTH_KEY, String(configWidth));
+  }, [configWidth]);
 
   useEffect(() => {
     fetchTools()
@@ -230,9 +286,13 @@ export default function App() {
     <ReactFlowProvider>
       <div className="pf-app">
         <Toolbar />
-        <div className="pf-main">
+        <div
+          className="pf-main"
+          style={{ ["--pf-config-w" as string]: `${configWidth}px` } as React.CSSProperties}
+        >
           <Palette />
           <Canvas />
+          <ResizeHandle width={configWidth} onResize={setConfigWidth} />
           <ConfigPanel />
         </div>
         <ResultsPanel />

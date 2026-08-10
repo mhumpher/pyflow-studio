@@ -157,11 +157,36 @@ body {
   position: relative;
 }
 .pf-config {
-  width: 340px;
+  width: var(--pf-config-w, 340px);
+  flex: none;
   background: var(--bg-panel);
   border-left: 1px solid var(--border);
   overflow-y: auto;
   padding: 12px;
+}
+.pf-resizer {
+  flex: none;
+  width: 6px;
+  cursor: col-resize;
+  position: relative;
+  touch-action: none;
+}
+.pf-resizer::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 2px;
+  width: 2px;
+  background: transparent;
+}
+.pf-resizer:hover::after,
+body.pf-resizing .pf-resizer::after {
+  background: var(--accent);
+}
+body.pf-resizing {
+  cursor: col-resize;
+  user-select: none;
 }
 
 /* Panels */
