@@ -430,6 +430,25 @@ body {
   gap: 10px;
   margin-top: 6px;
 }
+.pf-grid-paste {
+  margin-top: 8px;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.pf-grid-paste-area {
+  font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+  font-size: 11px;
+  resize: vertical;
+}
+.pf-grid-paste-actions {
+  display: flex;
+  gap: 6px;
+}
 
 .react-flow__handle {
   width: 9px;

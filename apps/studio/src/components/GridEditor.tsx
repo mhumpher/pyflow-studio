@@ -1,5 +1,6 @@
 // Editable data grid for the Text Input tool. The value is a table object
 // { columns: [{name, type}], rows: string[][] }; onChange writes a new one.
+import { useState } from "react";
 
 const GRID_TYPES = ["string", "int64", "float64", "bool", "date", "datetime"];
 
@@ -26,6 +27,68 @@ function normalize(value: unknown): GridTable {
   return { columns, rows };
 }
 
+// --- clipboard paste --------------------------------------------------------
+
+// Split pasted text into a 2-D array. Prefer tabs (Excel / Google Sheets copies
+// are tab-separated); fall back to commas.
+function splitGrid(text: string): string[][] {
+  const lines = text.replace(/\r\n?/g, "\n").split("\n");
+  while (lines.length && lines[lines.length - 1] === "") lines.pop();
+  const delim = text.includes("\t") ? "\t" : ",";
+  return lines.map((l) => l.split(delim));
+}
+
+// Guess a column's type from its values. Conservative: leading-zero numbers stay
+// strings (ZIP codes, ids), and 0/1 read as ints rather than booleans.
+function inferType(cells: string[]): string {
+  const vals = cells.map((c) => c.trim()).filter((c) => c !== "");
+  if (!vals.length) return "string";
+  // A leading zero before another digit (01234, 00789, 01.5) means the zero is
+  // significant — keep the whole column as text so casting doesn't drop it.
+  if (vals.some((v) => /^-?0\d/.test(v))) return "string";
+  const int = /^-?\d+$/;
+  const float = /^-?(\d+\.\d*|\.\d+|\d+)([eE][+-]?\d+)?$/;
+  const bool = /^(true|false|yes|no|t|f|y|n)$/i;
+  const date = /^\d{4}-\d{2}-\d{2}$/;
+  if (vals.every((v) => int.test(v))) return "int64";
+  if (vals.every((v) => float.test(v))) return "float64";
+  if (vals.every((v) => bool.test(v))) return "bool";
+  if (vals.every((v) => date.test(v))) return "date";
+  return "string";
+}
+
+function tableFromPaste(text: string, firstRowHeader: boolean): GridTable {
+  const grid = splitGrid(text);
+  if (!grid.length) return { columns: [], rows: [] };
+  const width = Math.max(...grid.map((r) => r.length));
+  const rows2d = grid.map((r) => {
+    const nr = [...r];
+    while (nr.length < width) nr.push("");
+    return nr;
+  });
+
+  let names: string[];
+  let dataRows: string[][];
+  if (firstRowHeader) {
+    names = rows2d[0].map((h, i) => h.trim() || `Column${i + 1}`);
+    dataRows = rows2d.slice(1);
+  } else {
+    names = Array.from({ length: width }, (_, i) => `Column${i + 1}`);
+    dataRows = rows2d;
+  }
+
+  // De-duplicate header names so Polars doesn't choke on collisions.
+  const seen = new Map<string, number>();
+  names = names.map((h) => {
+    const n = seen.get(h) ?? 0;
+    seen.set(h, n + 1);
+    return n ? `${h}_${n}` : h;
+  });
+
+  const columns = names.map((name, i) => ({ name, type: inferType(dataRows.map((r) => r[i] ?? "")) }));
+  return { columns, rows: dataRows };
+}
+
 export function GridEditor({
   value,
   onChange,
@@ -36,6 +99,10 @@ export function GridEditor({
   const table = normalize(value);
   const { columns, rows } = table;
   const width = columns.length;
+
+  const [pasting, setPasting] = useState(false);
+  const [pasteText, setPasteText] = useState("");
+  const [firstRowHeader, setFirstRowHeader] = useState(true);
 
   const emit = (next: GridTable) => onChange(next);
 
@@ -67,9 +134,34 @@ export function GridEditor({
       }),
     });
 
+  const openPaste = async () => {
+    setPasteText("");
+    setPasting(true);
+    // Best-effort one-click: prefill from the clipboard if the browser allows it;
+    // otherwise the user just pastes into the textarea with Ctrl+V.
+    try {
+      const t = await navigator.clipboard.readText();
+      if (t) setPasteText(t);
+    } catch {
+      /* clipboard read blocked — manual paste */
+    }
+  };
+  const applyPaste = () => {
+    const next = tableFromPaste(pasteText, firstRowHeader);
+    if (next.columns.length) emit(next);
+    setPasting(false);
+    setPasteText("");
+  };
+  const cancelPaste = () => {
+    setPasting(false);
+    setPasteText("");
+  };
+
   return (
     <div className="pf-grid">
-      {columns.length === 0 && <div className="pf-muted">Add a column to start entering data.</div>}
+      {columns.length === 0 && !pasting && (
+        <div className="pf-muted">Add a column or paste data to start.</div>
+      )}
       <div className="pf-grid-scroll">
         <table className="pf-grid-table">
           <thead>
@@ -133,10 +225,43 @@ export function GridEditor({
         <button type="button" className="pf-btn-sm" onClick={addRow} disabled={width === 0}>
           + Row
         </button>
+        <button type="button" className="pf-btn-sm" onClick={openPaste}>
+          Paste
+        </button>
         <span className="pf-muted">
           {rows.length} rows · {columns.length} cols
         </span>
       </div>
+
+      {pasting && (
+        <div className="pf-grid-paste">
+          <textarea
+            className="pf-input pf-grid-paste-area"
+            rows={5}
+            value={pasteText}
+            onChange={(e) => setPasteText(e.target.value)}
+            placeholder="Paste tab- or comma-separated rows (e.g. copied from Excel), then Load."
+            autoFocus
+          />
+          <label className="pf-check">
+            <input
+              type="checkbox"
+              checked={firstRowHeader}
+              onChange={(e) => setFirstRowHeader(e.target.checked)}
+            />
+            First row is a header
+          </label>
+          <div className="pf-grid-paste-actions">
+            <button type="button" className="pf-btn-sm" onClick={applyPaste} disabled={!pasteText.trim()}>
+              Load into grid
+            </button>
+            <button type="button" className="pf-btn-sm" onClick={cancelPaste}>
+              Cancel
+            </button>
+          </div>
+          <small className="pf-muted">Replaces the grid; column types are guessed — adjust after.</small>
+        </div>
+      )}
     </div>
   );
 }
