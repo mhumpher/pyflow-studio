@@ -15,10 +15,11 @@ and priorities may shift. Legend: ✅ done · 🚧 in progress · 📋 planned.
 
 - ✅ Monorepo: pure-Python **engine**, tool-authoring **SDK**, FastAPI **server**, React Flow **Studio**
 - ✅ Visual canvas — drag/drop, multi-anchor tools, live per-node run status, sampled previews + profiling
-- ✅ **23 tools**: file + database I/O (SQL Server / Redshift / Oracle / Postgres / MySQL / SQLite), a
+- ✅ **24 tools**: file + database I/O (SQL Server / Redshift / Oracle / Postgres / MySQL / SQLite), a
   **Text Input** tool (type data into a typed grid, or paste it from a spreadsheet), prep (Select, Filter, Formula, Sort, Sample,
   Unique), blend (Join, Union), the four Transform reshapers (Summarize, Cross Tab, Unpivot, Transpose), a
-  Parse pack (Text to Columns, RegEx, DateTime, JSON), and a custom multi-in/multi-out **Python tool**
+  Parse pack (Text to Columns, RegEx, DateTime, JSON), and the developer escape hatches — a **SQL** tool
+  (DuckDB, multi-input) and a custom multi-in/multi-out **Python** tool
 - ✅ Alteryx-style **formula language** (`[Field]`, `IF…ENDIF`, ~30 functions) compiled to Polars
 - ✅ **Design-time schema inference** with cache-aware propagation (data-dependent columns appear after a run)
 - ✅ **Content-addressed incremental caching** (edit one node → only it and its descendants recompute)
@@ -26,13 +27,13 @@ and priorities may shift. Legend: ✅ done · 🚧 in progress · 📋 planned.
 
 **Honest limitations right now:**
 
-- ⚠️ The execution engine is **Polars-only.** DuckDB (out-of-core), Dask/Ray (cluster), and true
-  streaming are described in the specs but **not yet implemented** — several tools materialize fully in
-  memory. Pyflow handles small-to-medium data well today; the "larger-than-memory" story is a goal, not
-  a current fact.
-- ⚠️ No PyPI package, no workflow save/open in the UI, and the developer tools (Python/SQL) run
-  **unsandboxed**. (A `pytest` suite and CI just landed — see Milestone 1.) These are the focus of the
-  milestones below.
+- ⚠️ The engine is **mostly Polars.** DuckDB has landed as the **SQL tool** (out-of-core joins and
+  aggregations in SQL), but it isn't yet a general backend behind the `Frame` abstraction, and Dask/Ray
+  (cluster) and end-to-end Polars streaming are described in the specs but **not yet implemented** —
+  several tools still materialize fully in memory. The "larger-than-memory" story is now partly real
+  (via SQL) and partly still a goal.
+- ⚠️ No PyPI package yet, and the developer tools (Python/SQL) run **unsandboxed**. These are the focus
+  of the milestones below.
 
 ---
 
@@ -74,8 +75,10 @@ is public.
 
 **Goal: larger-than-memory execution, for real.** This closes the gap between the specs and the engine.
 
-- 📋 **DuckDB backend** — out-of-core SQL, joins, and aggregations behind the `Frame` abstraction; a
-  dedicated **SQL tool**; predicate/projection push-down for database reads.
+- 🚧 **DuckDB backend** — the dedicated **SQL tool** ships (DuckDB runs SQL, incl. multi-input joins and
+  aggregations, over the connected frames; a schema-only `LIMIT 0` pass keeps design-time inference cheap
+  and validates the query live). Still to do: DuckDB *behind* the `Frame` abstraction as a general
+  out-of-core backend, and predicate/projection push-down for database reads.
 - 📋 **End-to-end streaming** — use Polars' streaming engine and `sink_*` paths; avoid full `collect()`
   where possible; spill to disk on blocking operations.
 - 📋 **Prove the backend abstraction** with ≥2 real backends (Polars + DuckDB) and a benchmark suite

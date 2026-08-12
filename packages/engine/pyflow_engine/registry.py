@@ -48,6 +48,7 @@ def build_default_registry() -> ToolRegistry:
     from .tools.sample import SampleTool
     from .tools.select import SelectTool
     from .tools.sort import SortTool
+    from .tools.sql import SqlTool
     from .tools.summarize import SummarizeTool
     from .tools.text_to_columns import TextToColumnsTool
     from .tools.transpose import TransposeTool
@@ -77,6 +78,7 @@ def build_default_registry() -> ToolRegistry:
             JsonParseTool,
             JoinTool,
             UnionTool,
+            SqlTool,
             PythonTool,
             BrowseTool,
             OutputFileTool,

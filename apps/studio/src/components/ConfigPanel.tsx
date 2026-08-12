@@ -462,9 +462,10 @@ export function ConfigPanel() {
             </div>
           ));
         })()}
-        {(tool?.configFields ?? []).some((f) => f.editor === "sql") && (
-          <DbActions nodeId={node.id} config={data.config} />
-        )}
+        {(tool?.configFields ?? []).some((f) => f.name === "dialect") &&
+          (tool?.configFields ?? []).some((f) => f.editor === "sql") && (
+            <DbActions nodeId={node.id} config={data.config} />
+          )}
       </div>
 
       <div className="pf-outputs">
