@@ -13,6 +13,16 @@ import polars as pl
 from .types import Schema
 
 
+def collect_streaming(lf: pl.LazyFrame) -> pl.DataFrame:
+    """Collect with Polars' streaming engine so large blocking operations
+    (group-by / join / sort) spill to disk instead of exhausting memory. Falls
+    back to the in-memory engine if the streaming engine can't run the plan."""
+    try:
+        return lf.collect(engine="streaming")
+    except Exception:
+        return lf.collect()
+
+
 class Frame:
     def __init__(self, lazy: pl.LazyFrame) -> None:
         self._lazy = lazy
@@ -27,17 +37,17 @@ class Frame:
 
     def head(self, n: int) -> pl.DataFrame:
         """Collect a bounded sample for previews."""
-        return self._lazy.head(n).collect()
+        return collect_streaming(self._lazy.head(n))
 
     def count(self) -> int:
         """Row count via a cheap aggregation."""
-        return int(self._lazy.select(pl.len()).collect().item())
+        return int(collect_streaming(self._lazy.select(pl.len())).item())
 
     def collect(self) -> pl.DataFrame:
-        return self._lazy.collect()
+        return collect_streaming(self._lazy)
 
     def to_arrow(self) -> Any:
-        return self._lazy.collect().to_arrow()
+        return collect_streaming(self._lazy).to_arrow()
 
     @classmethod
     def from_polars(cls, df: pl.DataFrame | pl.LazyFrame) -> "Frame":

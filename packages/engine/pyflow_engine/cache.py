@@ -17,6 +17,7 @@ import polars as pl
 
 from .document import WorkflowDoc, topo_sort
 from .execution import incoming_edges
+from .frame import collect_streaming
 
 # Bump to invalidate all caches when execution semantics change.
 _ENGINE_CACHE_VERSION = "1"
@@ -27,7 +28,7 @@ def materialize(lf: pl.LazyFrame, path: str) -> None:
     try:
         lf.sink_ipc(path)
     except Exception:
-        lf.collect().write_ipc(path)
+        collect_streaming(lf).write_ipc(path)
 
 
 def compute_hashes(doc: WorkflowDoc, registry: Any) -> dict[str, str]:

@@ -27,11 +27,11 @@ and priorities may shift. Legend: ✅ done · 🚧 in progress · 📋 planned.
 
 **Honest limitations right now:**
 
-- ⚠️ The engine is **mostly Polars.** DuckDB has landed as the **SQL tool** (out-of-core joins and
-  aggregations in SQL), but it isn't yet a general backend behind the `Frame` abstraction, and Dask/Ray
-  (cluster) and end-to-end Polars streaming are described in the specs but **not yet implemented** —
-  several tools still materialize fully in memory. The "larger-than-memory" story is now partly real
-  (via SQL) and partly still a goal.
+- ⚠️ The engine is **mostly Polars.** Larger-than-memory now works for the common path — Polars runs
+  lazily with streaming sinks (scan → filter → group-by → sink spills to disk), and DuckDB handles
+  out-of-core SQL via the **SQL tool**. What's still missing: DuckDB as a *general* backend behind the
+  `Frame` abstraction, a cluster backend (Dask/Ray), and a graded benchmark suite — plus a few tools
+  (Python, and the SQL tool's inputs) still collect fully in memory by nature.
 - ⚠️ No PyPI package yet, and the developer tools (Python/SQL) run **unsandboxed**. These are the focus
   of the milestones below.
 
@@ -79,8 +79,11 @@ is public.
   aggregations, over the connected frames; a schema-only `LIMIT 0` pass keeps design-time inference cheap
   and validates the query live). Still to do: DuckDB *behind* the `Frame` abstraction as a general
   out-of-core backend, and predicate/projection push-down for database reads.
-- 📋 **End-to-end streaming** — use Polars' streaming engine and `sink_*` paths; avoid full `collect()`
-  where possible; spill to disk on blocking operations.
+- 🚧 **End-to-end streaming** — the cache materializes each node with `sink_ipc`, the Output tool writes
+  with `sink_csv/parquet/ipc/ndjson`, and the `Frame` surface (count / preview / collect) now runs on
+  Polars' **streaming engine**, so a scan → filter → group-by → sink pipeline spills to disk instead of
+  loading everything (a 1 M-row proof test lives in `tests/test_streaming.py`). Still to do: a graded
+  benchmark suite (1 / 10 / 50 GB) and pushing more tools onto the sink path.
 - 📋 **Prove the backend abstraction** with ≥2 real backends (Polars + DuckDB) and a benchmark suite
   (1 / 10 / 50 GB).
 - 📋 *(Stretch)* **Dask / Ray backend** for cluster-scale, partitioned execution.

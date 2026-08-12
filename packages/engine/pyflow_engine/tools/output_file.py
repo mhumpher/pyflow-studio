@@ -12,7 +12,7 @@ import polars as pl
 from pydantic import BaseModel
 from pydantic import Field as PField
 
-from ..frame import Frame
+from ..frame import Frame, collect_streaming
 from ..tool import InputAnchor, OutputAnchor, Tool
 
 
@@ -67,23 +67,25 @@ class OutputFileTool(Tool):
             try:
                 lf.sink_csv(cfg.path, separator=cfg.delimiter, include_header=cfg.write_header)
             except Exception:
-                lf.collect().write_csv(cfg.path, separator=cfg.delimiter, include_header=cfg.write_header)
+                collect_streaming(lf).write_csv(
+                    cfg.path, separator=cfg.delimiter, include_header=cfg.write_header
+                )
         elif fmt is OutputFormat.parquet:
             try:
                 lf.sink_parquet(cfg.path)
             except Exception:
-                lf.collect().write_parquet(cfg.path)
+                collect_streaming(lf).write_parquet(cfg.path)
         elif fmt is OutputFormat.arrow:
             try:
                 lf.sink_ipc(cfg.path)
             except Exception:
-                lf.collect().write_ipc(cfg.path)
+                collect_streaming(lf).write_ipc(cfg.path)
         elif fmt is OutputFormat.json:
             try:
                 lf.sink_ndjson(cfg.path)
             except Exception:
-                lf.collect().write_ndjson(cfg.path)
+                collect_streaming(lf).write_ndjson(cfg.path)
         elif fmt is OutputFormat.excel:
-            lf.collect().write_excel(cfg.path)  # requires xlsxwriter
+            collect_streaming(lf).write_excel(cfg.path)  # requires xlsxwriter
         else:  # pragma: no cover - enum is exhaustive
             raise ValueError(f"Unsupported format: {fmt}")

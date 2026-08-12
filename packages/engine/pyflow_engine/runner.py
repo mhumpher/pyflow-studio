@@ -17,7 +17,7 @@ from .cache import RunCache, compute_hashes, materialize
 from .context import RunContext
 from .document import WorkflowDoc, ancestors_including, disabled_closure, topo_sort
 from .execution import gather_inputs, incoming_edges
-from .frame import Frame
+from .frame import Frame, collect_streaming
 from .registry import ToolRegistry, build_default_registry
 from .serialize import df_to_grid
 from .types import Schema
@@ -174,8 +174,8 @@ class Runner:
                     lf = frame.lazy
 
                 schema = Schema.from_polars(lf.collect_schema())
-                count = int(lf.select(pl.len()).collect().item())
-                grid = df_to_grid(lf.head(self.sample_rows).collect())
+                count = int(collect_streaming(lf.select(pl.len())).item())
+                grid = df_to_grid(collect_streaming(lf.head(self.sample_rows)))
 
                 self.results[node_id][anchor] = Frame(lf)
                 self.samples[node_id][anchor] = {
